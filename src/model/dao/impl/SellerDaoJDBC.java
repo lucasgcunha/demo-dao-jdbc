@@ -6,11 +6,7 @@ import model.dao.SellerDao;
 import model.entities.Department;
 import model.entities.Seller;
 
-import javax.swing.plaf.nimbus.State;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +14,7 @@ import java.util.Map;
 
 public class SellerDaoJDBC implements SellerDao {
 
-    private Connection conn;
+    private final Connection conn;
 
     public SellerDaoJDBC(Connection conn){
         this.conn = conn;
@@ -32,7 +28,7 @@ public class SellerDaoJDBC implements SellerDao {
                     "(Name, Email, BirthDate, BaseSalary, DepartmentId) " +
                     "VALUES" +
                     "(?, ?, ?, ?, ?)",
-                    PreparedStatement.RETURN_GENERATED_KEYS);
+                    Statement.RETURN_GENERATED_KEYS);
 
             st.setString(1, obj.getName());
             st.setString(2, obj.getEmail());
@@ -65,8 +61,8 @@ public class SellerDaoJDBC implements SellerDao {
     public void update(Seller obj) {
         PreparedStatement st = null;
         try{
-            st = conn.prepareStatement("UPDATE seller\n" +
-                            "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ?\n" +
+            st = conn.prepareStatement("UPDATE seller " +
+                            "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? " +
                             "WHERE Id = ?");
 
             st.setString(1, obj.getName());
@@ -117,9 +113,7 @@ public class SellerDaoJDBC implements SellerDao {
             if (rs.next()){
                 Department dep = instantiateDepartment(rs);
 
-                Seller sel = instantiateSeller(rs, dep);
-
-                return sel;
+                return instantiateSeller(rs, dep);
 
             }
 
